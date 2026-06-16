@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual env / Poetry
+.venv/
+venv/
+.python-version
+
+# Env
+.env
+
+# IDE
+.idea/
+.vscode/
+
+# Tests / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Logs
+*.log

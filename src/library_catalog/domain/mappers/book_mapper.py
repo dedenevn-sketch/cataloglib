@@ -1,0 +1,25 @@
+from ...api.v1.schemas.book import ShowBook
+from ...data.models.book import Book
+
+
+class BookMapper:
+    @staticmethod
+    def to_show_book(book: Book) -> ShowBook:
+        return ShowBook(
+            book_id=book.book_id,
+            title=book.title,
+            author=book.author,
+            year=book.year,
+            genre=book.genre,
+            pages=book.pages,
+            available=book.available,
+            isbn=book.isbn,
+            description=book.description,
+            extra=book.extra,
+            created_at=book.created_at,
+            updated_at=book.updated_at,
+        )
+
+    @staticmethod
+    def to_show_books(books: list[Book]) -> list[ShowBook]:
+        return [BookMapper.to_show_book(book) for book in books]
