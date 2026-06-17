@@ -19,7 +19,6 @@ class BookAlreadyExistsException(AppException):
 
 class InvalidYearException(AppException):
     def __init__(self, year: int):
-        current_year = datetime.now().year
         super().__init__(
             message=f"Year {year} is invalid (must be 1000-{current_year})",
             status_code=400,
