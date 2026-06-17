@@ -29,7 +29,7 @@ class BookService:
         self.ol_client = openlibrary_client
 
     async def create_book(self, book_data: BookCreate) -> ShowBook:
-        self._validate_book_data(book_data)
+        self._validate_fields(year=book_data.year, pages=book_data.pages)
 
         if book_data.isbn:
             existing = await self.book_repo.find_by_isbn(book_data.isbn)
@@ -61,12 +61,7 @@ class BookService:
         existing = await self.book_repo.get_by_id(book_id)
         if existing is None:
             raise BookNotFoundException(book_id)
-
-        if book_data.year is not None:
-            self._validate_year(book_data.year)
-        if book_data.pages is not None:
-            self._validate_pages(book_data.pages)
-
+        self._validate_fields(year=book_data.year, pages=book_data.pages)
         updated = await self.book_repo.update(
             book_id,
             **book_data.model_dump(exclude_unset=True),
@@ -134,3 +129,9 @@ class BookService:
                 book_data.author,
             )
             return None
+
+    def _validate_fields(self, year: int | None, pages: int | None) -> None:
+        if year is not None:
+            self._validate_year(year)
+        if pages is not None:
+            self._validate_pages(pages)
