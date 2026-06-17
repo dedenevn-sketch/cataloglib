@@ -31,7 +31,7 @@ class BaseRepository(Generic[T]):
         if instance is None:
             return None
         for key, value in kwargs.items():
-            if value is not None and hasattr(instance, key):
+            if hasattr(instance, key):
                 setattr(instance, key, value)
         await self.session.commit()
         await self.session.refresh(instance)
