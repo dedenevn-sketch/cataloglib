@@ -31,15 +31,10 @@ async_session_maker = async_sessionmaker(
 )
 
 
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
+async def get_db():
     async with async_session_maker() as session:
-        try:
+        async with session.begin():
             yield session
-        except Exception:
-            await session.rollback()
-            raise
-        finally:
-            await session.close()
 
 
 async def check_db_connection() -> bool:

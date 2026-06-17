@@ -19,7 +19,7 @@ class BaseRepository(Generic[T]):
     async def create(self, **kwargs) -> T:
         instance = self.model(**kwargs)
         self.session.add(instance)
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(instance)
         return instance
 
