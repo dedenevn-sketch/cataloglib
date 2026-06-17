@@ -54,17 +54,13 @@ async def test_create_book_duplicate_isbn(repo, ol, sample_book, book_create_pay
     repo.create.assert_not_awaited()
 
 
-@pytest.mark.asyncio
-async def test_create_book_invalid_year(repo, ol, book_create_payload):
-    payload = {**book_create_payload, "year": 999}
+def test_create_book_invalid_year(repo, ol, book_create_payload):
     service = make_service(repo, ol)
-    # Pydantic перехватит year<1000 на уровне схемы, поэтому проверяем сервис напрямую
     with pytest.raises(InvalidYearException):
         service._validate_year(999)
 
 
-@pytest.mark.asyncio
-async def test_create_book_invalid_pages(repo, ol):
+def test_create_book_invalid_pages(repo, ol):
     service = make_service(repo, ol)
     with pytest.raises(InvalidPagesException):
         service._validate_pages(0)
