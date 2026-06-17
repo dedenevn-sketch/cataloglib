@@ -19,7 +19,7 @@ RUN poetry config virtualenvs.create false
 WORKDIR /app
 
 # Копируем файлы зависимостей
-COPY pyproject.toml poetry.lock* /app/
+COPY pyproject.toml poetry.lock /app/
 
 # Устанавливаем все зависимости через Poetry внутри контейнера
 RUN poetry install --no-interaction --no-ansi
