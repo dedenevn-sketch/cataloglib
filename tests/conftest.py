@@ -10,9 +10,9 @@ from src.library_catalog.data.models.book import Book
 
 @pytest.fixture
 def sample_book() -> Book:
-    """ORM-объект книги (без сохранения в БД) для unit-тестов."""
     now = datetime.now(timezone.utc)
     book = Book(
+        book_id=uuid4(),
         title="Clean Code",
         author="Robert Martin",
         year=2008,
@@ -22,12 +22,10 @@ def sample_book() -> Book:
         isbn="9780132350884",
         description="A Handbook of Agile Software Craftsmanship",
         extra={"cover_url": "https://covers.openlibrary.org/b/id/1-L.jpg"},
+        created_at=now,
+        updated_at=now,
     )
-    book.book_id = uuid4()
-    book.created_at = now
-    book.updated_at = now
     return book
-
 
 @pytest.fixture
 def book_create_payload() -> dict:
