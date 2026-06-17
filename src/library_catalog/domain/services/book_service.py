@@ -14,7 +14,7 @@ from ..exceptions import (
     InvalidYearException,
     OpenLibraryException,
 )
-from ..mappers.book_mapper import BookMapper
+from ..mappers.book_mapper import to_show_book, to_show_books
 
 logger = logging.getLogger(__name__)
 
@@ -49,13 +49,13 @@ class BookService:
             extra=extra,
         )
 
-        return BookMapper.to_show_book(book)
+        return to_show_book(book)
 
     async def get_book(self, book_id: UUID) -> ShowBook:
         book = await self.book_repo.get_by_id(book_id)
         if book is None:
             raise BookNotFoundException(book_id)
-        return BookMapper.to_show_book(book)
+        return to_show_book(book)
 
     async def update_book(self, book_id: UUID, book_data: BookUpdate) -> ShowBook:
         existing = await self.book_repo.get_by_id(book_id)
@@ -66,7 +66,7 @@ class BookService:
             existing,
             **book_data.model_dump(exclude_unset=True),
         )
-        return BookMapper.to_show_book(updated)
+        return to_show_book(updated)
 
     async def delete_book(self, book_id: UUID) -> None:
         deleted = await self.book_repo.delete(book_id)
@@ -99,7 +99,7 @@ class BookService:
             year=year,
             available=available,
         )
-        return BookMapper.to_show_books(books), total
+        return to_show_books(books), total
 
     def _validate_book_data(self, data: BookCreate) -> None:
         self._validate_year(data.year)
