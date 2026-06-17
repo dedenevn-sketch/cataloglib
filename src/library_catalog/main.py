@@ -21,8 +21,9 @@ async def lifespan(app: FastAPI):
     logger.info("Application started")
     yield
     await dispose_engine()
+    ol_client = get_openlibrary_client()
+    await ol_client.close()
     logger.info("Application stopped")
-
 
 app = FastAPI(
     title=settings.app_name,
