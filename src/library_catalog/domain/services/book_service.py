@@ -62,8 +62,8 @@ class BookService:
         if existing is None:
             raise BookNotFoundException(book_id)
         self._validate_fields(year=book_data.year, pages=book_data.pages)
-        updated = await self.book_repo.update(
-            book_id,
+        updated = await self.book_repo.update_instance(
+            existing,
             **book_data.model_dump(exclude_unset=True),
         )
         return BookMapper.to_show_book(updated)

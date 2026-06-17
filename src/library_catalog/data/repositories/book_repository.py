@@ -71,3 +71,12 @@ class BookRepository(BaseRepository[Book]):
         stmt = self._apply_filters(stmt, title, author, genre, year, available)
         result = await self.session.execute(stmt)
         return result.scalar_one()
+
+
+    async def update_instance(self, instance: Book, **kwargs) -> Book:
+        for key, value in kwargs.items():
+            if hasattr(instance, key):
+                setattr(instance, key, value)
+        await self.session.flush()
+        await self.session.refresh(instance)
+        return instance
