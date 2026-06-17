@@ -2,7 +2,7 @@
 
 from typing import Generic, Type, TypeVar
 from uuid import UUID
-
+from abc import abstractmethod
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -45,7 +45,6 @@ class BaseRepository(Generic[T]):
         await self.session.commit()
         return True
 
+    @abstractmethod
     async def get_all(self, limit: int = 100, offset: int = 0) -> list[T]:
-        stmt = select(self.model).limit(limit).offset(offset)
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        ...
