@@ -14,7 +14,7 @@ from ..exceptions import (
     InvalidYearException,
     OpenLibraryException,
 )
-from ..mappers.book_mapper import BookMapper
+from ..mappers.book_mapper import to_show_book, to_show_books
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ class BookService:
         self.ol_client = openlibrary_client
 
     async def create_book(self, book_data: BookCreate) -> ShowBook:
-        self._validate_book_data(book_data)
+        self._validate_fields(year=book_data.year, pages=book_data.pages)
 
         if book_data.isbn:
             existing = await self.book_repo.find_by_isbn(book_data.isbn)
@@ -49,29 +49,24 @@ class BookService:
             extra=extra,
         )
 
-        return BookMapper.to_show_book(book)
+        return to_show_book(book)
 
     async def get_book(self, book_id: UUID) -> ShowBook:
         book = await self.book_repo.get_by_id(book_id)
         if book is None:
             raise BookNotFoundException(book_id)
-        return BookMapper.to_show_book(book)
+        return to_show_book(book)
 
     async def update_book(self, book_id: UUID, book_data: BookUpdate) -> ShowBook:
         existing = await self.book_repo.get_by_id(book_id)
         if existing is None:
             raise BookNotFoundException(book_id)
-
-        if book_data.year is not None:
-            self._validate_year(book_data.year)
-        if book_data.pages is not None:
-            self._validate_pages(book_data.pages)
-
-        updated = await self.book_repo.update(
-            book_id,
+        self._validate_fields(year=book_data.year, pages=book_data.pages)
+        updated = await self.book_repo.update_instance(
+            existing,
             **book_data.model_dump(exclude_unset=True),
         )
-        return BookMapper.to_show_book(updated)
+        return to_show_book(updated)
 
     async def delete_book(self, book_id: UUID) -> None:
         deleted = await self.book_repo.delete(book_id)
@@ -104,7 +99,7 @@ class BookService:
             year=year,
             available=available,
         )
-        return BookMapper.to_show_books(books), total
+        return to_show_books(books), total
 
     def _validate_book_data(self, data: BookCreate) -> None:
         self._validate_year(data.year)
@@ -134,3 +129,9 @@ class BookService:
                 book_data.author,
             )
             return None
+
+    def _validate_fields(self, year: int | None, pages: int | None) -> None:
+        if year is not None:
+            self._validate_year(year)
+        if pages is not None:
+            self._validate_pages(pages)

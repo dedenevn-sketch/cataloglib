@@ -1,7 +1,7 @@
 """Клиент Open Library API."""
 
 import httpx
-
+from ..openlibrary.schemas import OpenLibrarySearchResponse
 from ...domain.exceptions import OpenLibraryException, OpenLibraryTimeoutException
 from ..base.base_client import BaseApiClient
 
@@ -20,8 +20,8 @@ class OpenLibraryClient(BaseApiClient):
     async def search_by_isbn(self, isbn: str) -> dict:
         try:
             data = await self._get("/search.json", params={"isbn": isbn, "limit": 1})
-            docs = data.get("docs", [])
-            return self._extract_book_data(docs[0]) if docs else {}
+            parsed = OpenLibrarySearchResponse.model_validate(data)
+            return self._extract_book_data(parsed.docs[0].model_dump()) if parsed.docs else {}
         except httpx.TimeoutException:
             raise OpenLibraryTimeoutException(self.timeout)
         except httpx.HTTPError as exc:
@@ -33,8 +33,8 @@ class OpenLibraryClient(BaseApiClient):
                 "/search.json",
                 params={"title": title, "author": author, "limit": 1},
             )
-            docs = data.get("docs", [])
-            return self._extract_book_data(docs[0]) if docs else {}
+            parsed = OpenLibrarySearchResponse.model_validate(data) 
+            return self._extract_book_data(parsed.docs[0].model_dump()) if parsed.docs else {}
         except httpx.TimeoutException:
             raise OpenLibraryTimeoutException(self.timeout)
         except httpx.HTTPError as exc:

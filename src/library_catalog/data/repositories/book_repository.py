@@ -2,7 +2,7 @@
 
 from sqlalchemy import Select, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from ...utils.helpers import clean_isbn
 from ..models.book import Book
 from .base_repository import BaseRepository
 
@@ -54,7 +54,7 @@ class BookRepository(BaseRepository[Book]):
 
     async def find_by_isbn(self, isbn: str) -> Book | None:
         """Найти книгу по ISBN."""
-        stmt = select(Book).where(Book.isbn == isbn)
+        stmt = select(Book).where(Book.isbn == clean_isbn(isbn))
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
@@ -71,3 +71,12 @@ class BookRepository(BaseRepository[Book]):
         stmt = self._apply_filters(stmt, title, author, genre, year, available)
         result = await self.session.execute(stmt)
         return result.scalar_one()
+
+
+    async def update_instance(self, instance: Book, **kwargs) -> Book:
+        for key, value in kwargs.items():
+            if hasattr(instance, key):
+                setattr(instance, key, value)
+        await self.session.flush()
+        await self.session.refresh(instance)
+        return instance

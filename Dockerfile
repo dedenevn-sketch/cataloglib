@@ -19,7 +19,7 @@ RUN poetry config virtualenvs.create false
 WORKDIR /app
 
 # Копируем файлы зависимостей
-COPY pyproject.toml poetry.lock* /app/
+COPY pyproject.toml poetry.lock /app/
 
 # Устанавливаем все зависимости через Poetry внутри контейнера
 RUN poetry install --no-interaction --no-ansi
@@ -31,4 +31,4 @@ COPY . /app/
 EXPOSE 8000
 
 # Команда для запуска приложения с автоперезагрузкой при изменении кода
-CMD ["uvicorn", "src.library_catalog.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "src.library_catalog.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

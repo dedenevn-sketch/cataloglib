@@ -2,7 +2,7 @@
 
 from typing import Generic, Type, TypeVar
 from uuid import UUID
-
+from abc import abstractmethod
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,7 +19,7 @@ class BaseRepository(Generic[T]):
     async def create(self, **kwargs) -> T:
         instance = self.model(**kwargs)
         self.session.add(instance)
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(instance)
         return instance
 
@@ -31,7 +31,7 @@ class BaseRepository(Generic[T]):
         if instance is None:
             return None
         for key, value in kwargs.items():
-            if value is not None and hasattr(instance, key):
+            if hasattr(instance, key):
                 setattr(instance, key, value)
         await self.session.commit()
         await self.session.refresh(instance)
@@ -45,7 +45,6 @@ class BaseRepository(Generic[T]):
         await self.session.commit()
         return True
 
+    @abstractmethod
     async def get_all(self, limit: int = 100, offset: int = 0) -> list[T]:
-        stmt = select(self.model).limit(limit).offset(offset)
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        ...

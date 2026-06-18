@@ -34,7 +34,7 @@ def upgrade() -> None:
         sa.Column("year", sa.Integer(), nullable=False),
         sa.Column("genre", sa.String(length=100), nullable=False),
         sa.Column("pages", sa.Integer(), nullable=False),
-        sa.Column("available", sa.Boolean(), nullable=False),
+        sa.Column("available", sa.Boolean(), nullable=False, server_default=sa.true()),
         sa.Column("isbn", sa.String(length=20), nullable=True),
         sa.Column("description", sa.Text(), nullable=True),
         sa.Column("extra", postgresql.JSONB(astext_type=sa.Text()), nullable=True),

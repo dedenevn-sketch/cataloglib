@@ -1,19 +1,22 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16-alpine
     container_name: library_catalog_db
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: library_catalog
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - library_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   web:
     build: .
@@ -22,15 +25,17 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+    command: uvicorn src.library_catalog.main:app --host 0.0.0.0 --port 8000 --reload
+    env_file:
+      - .env
     environment:
       - ENVIRONMENT=development
       - DEBUG=true
-      # ВАЖНО: Внутри Docker-сети вместо localhost мы пишем имя сервиса базы данных — postgres
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/library_catalog
       - API_V1_PREFIX=/api/v1
       - LOG_LEVEL=INFO
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - library_network
 
